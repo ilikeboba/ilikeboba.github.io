@@ -1,120 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pong Game</title>
-    <style>
-        body {
-            background-color: #000;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        canvas {
-            display: block;
-        }
-    </style>
+  <title>Number Guessing Game</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="pong-game"></canvas>
+  <h1>Number Guessing Game</h1>
+  <p>Guess a number between 1 and 100:</p>
+  <input type="text" id="guessInput">
+  <button onclick="checkGuess()">Submit</button>
+  <p id="result"></p>
 
-    <script>
-        const canvas = document.getElementById("pong-game");
-        const context = canvas.getContext("2d");
+  <script>
+    // Generate a random number between 1 and 100
+    const targetNumber = Math.floor(Math.random() * 100) + 1;
+    let attempts = 0;
 
-        // Set canvas dimensions
-        canvas.width = 800;
-        canvas.height = 400;
+    function checkGuess() {
+      const guess = parseInt(document.getElementById('guessInput').value);
 
-        // Paddle objects
-        const user = {
-            x: 0,
-            y: canvas.height / 2 - 50,
-            width: 10,
-            height: 100,
-            color: "#fff",
-            dy: 6
-        };
+      if (isNaN(guess) || guess < 1 || guess > 100) {
+        document.getElementById('result').textContent = "Please enter a valid number between 1 and 100.";
+      } else {
+        attempts++;
 
-        const computer = {
-            x: canvas.width - 10,
-            y: canvas.height / 2 - 50,
-            width: 10,
-            height: 100,
-            color: "#fff",
-            dy: 4
-        };
-
-        // Ball object
-        const ball = {
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-            radius: 10,
-            speed: 4,
-            dx: 4,
-            dy: 4,
-            color: "#fff"
-        };
-
-        // Draw paddles
-        function drawPaddle(x, y, width, height, color) {
-            context.fillStyle = color;
-            context.fillRect(x, y, width, height);
+        if (guess === targetNumber) {
+          document.getElementById('result').textContent = `Congratulations! You guessed the number in ${attempts} attempts.`;
+          document.getElementById('guessInput').disabled = true;
+        } else if (guess < targetNumber) {
+          document.getElementById('result').textContent = "Too low! Try again.";
+        } else {
+          document.getElementById('result').textContent = "Too high! Try again.";
         }
-
-        // Draw ball
-        function drawBall(x, y, radius, color) {
-            context.fillStyle = color;
-            context.beginPath();
-            context.arc(x, y, radius, 0, Math.PI * 2, false);
-            context.closePath();
-            context.fill();
-        }
-
-        // Update canvas
-        function update() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw paddles
-            drawPaddle(user.x, user.y, user.width, user.height, user.color);
-            drawPaddle(computer.x, computer.y, computer.width, computer.height, computer.color);
-
-            // Draw ball
-            drawBall(ball.x, ball.y, ball.radius, ball.color);
-
-            // Move user paddle
-            user.y += user.dy;
-
-            // Move computer paddle
-            computer.y += computer.dy;
-
-            // Ball collision with top/bottom walls
-            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
-                ball.dy *= -1;
-            }
-
-            // Ball collision with paddles
-            if (
-                ball.x - ball.radius < user.x + user.width &&
-                ball.y > user.y &&
-                ball.y < user.y + user.height
-            ) {
-                ball.dx *= -1;
-            } else if (
-                ball.x + ball.radius > computer.x &&
-                ball.y > computer.y &&
-                ball.y < computer.y + computer.height
-            ) {
-                ball.dx *= -1;
-            }
-
-            // Ball movement
-            ball.x += ball.dx;
-            ball.y += ball.dy;
-
-            requestAnimationFrame(update);
-        }
-
-        update();
-    </script>
+      }
+    }
+  </script>
 </body>
 </html>
