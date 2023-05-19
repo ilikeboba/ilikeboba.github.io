@@ -1,42 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mouse Click Game</title>
+    <title>Pong Game</title>
     <style>
-        #game-area {
-            width: 300px;
-            height: 300px;
-            background-color: lightgray;
-            cursor: crosshair;
+        body {
+            background-color: #000;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <h1>Mouse Click Game</h1>
-    <div id="game-area"></div>
-    <p>Score: <span id="score">0</span></p>
+    <canvas id="pong-game"></canvas>
 
     <script>
-        var gameArea = document.getElementById("game-area");
-        var scoreLabel = document.getElementById("score");
-        var score = 0;
+        const canvas = document.getElementById("pong-game");
+        const context = canvas.getContext("2d");
 
-        gameArea.addEventListener("click", function() {
-            increaseScore();
-            moveGameArea();
-        });
+        // Set canvas dimensions
+        canvas.width = 800;
+        canvas.height = 400;
 
-        function increaseScore() {
-            score++;
-            scoreLabel.textContent = score;
+        // Paddle objects
+        const user = {
+            x: 0,
+            y: canvas.height / 2 - 50,
+            width: 10,
+            height: 100,
+            color: "#fff",
+            dy: 6
+        };
+
+        const computer = {
+            x: canvas.width - 10,
+            y: canvas.height / 2 - 50,
+            width: 10,
+            height: 100,
+            color: "#fff",
+            dy: 4
+        };
+
+        // Ball object
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 10,
+            speed: 4,
+            dx: 4,
+            dy: 4,
+            color: "#fff"
+        };
+
+        // Draw paddles
+        function drawPaddle(x, y, width, height, color) {
+            context.fillStyle = color;
+            context.fillRect(x, y, width, height);
         }
 
-        function moveGameArea() {
-            var newX = Math.random() * (window.innerWidth - 300);
-            var newY = Math.random() * (window.innerHeight - 300);
-            gameArea.style.left = newX + "px";
-            gameArea.style.top = newY + "px";
+        // Draw ball
+        function drawBall(x, y, radius, color) {
+            context.fillStyle = color;
+            context.beginPath();
+            context.arc(x, y, radius, 0, Math.PI * 2, false);
+            context.closePath();
+            context.fill();
         }
+
+        // Update canvas
+        function update() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw paddles
+            drawPaddle(user.x, user.y, user.width, user.height, user.color);
+            drawPaddle(computer.x, computer.y, computer.width, computer.height, computer.color);
+
+            // Draw ball
+            drawBall(ball.x, ball.y, ball.radius, ball.color);
+
+            // Move user paddle
+            user.y += user.dy;
+
+            // Move computer paddle
+            computer.y += computer.dy;
+
+            // Ball collision with top/bottom walls
+            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+                ball.dy *= -1;
+            }
+
+            // Ball collision with paddles
+            if (
+                ball.x - ball.radius < user.x + user.width &&
+                ball.y > user.y &&
+                ball.y < user.y + user.height
+            ) {
+                ball.dx *= -1;
+            } else if (
+                ball.x + ball.radius > computer.x &&
+                ball.y > computer.y &&
+                ball.y < computer.y + computer.height
+            ) {
+                ball.dx *= -1;
+            }
+
+            // Ball movement
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            requestAnimationFrame(update);
+        }
+
+        update();
     </script>
 </body>
 </html>
